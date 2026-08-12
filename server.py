@@ -5,17 +5,18 @@ Includes User Authentication (Login/Signup) and SQLite Database for multi-device
 """
 
 import os
-import smtplib
 import base64
 import sqlite3
 import secrets
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
+import requests
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Google Apps Script configuration
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5lMbAKwvSo2WqYxZAm1h6-wNfUCdcJspkhXBxoXw91lV3JO7eucbe1oXor6bsMqPc/exec"
+SECRET_TOKEN = "Harsh7023"
+
 
 app = Flask(__name__)
 CORS(app)
@@ -331,35 +332,21 @@ def send_email():
         if not body:
             return jsonify({"success": False, "error": "Email body is required"}), 400
 
-        # Build the email
-        msg = MIMEMultipart()
-        msg["From"] = GMAIL_EMAIL
-        msg["To"] = receiver_email
-        msg["Subject"] = subject
+        # Send via Google Apps Script (HTTP POST)
+        payload = {
+            "secretToken": SECRET_TOKEN,
+            "receiverEmail": receiver_email,
+            "subject": subject,
+            "body": body,
+            "resumeName": resume_name,
+            "resumeData": resume_data
+        }
 
-        # Email body
-        msg.attach(MIMEText(body, "plain"))
+        response = requests.post(APPS_SCRIPT_URL, json=payload, timeout=25)
+        result = response.json()
 
-        # Attach resume if provided
-        if resume_name and resume_data:
-            if "," in resume_data:
-                resume_data = resume_data.split(",", 1)[1]
-
-            file_bytes = base64.b64decode(resume_data)
-
-            attachment = MIMEBase("application", "octet-stream")
-            attachment.set_payload(file_bytes)
-            encoders.encode_base64(attachment)
-            attachment.add_header(
-                "Content-Disposition",
-                f"attachment; filename={resume_name}"
-            )
-            msg.attach(attachment)
-
-        # Send via Gmail SMTP
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_EMAIL, receiver_email, msg.as_string())
+        if not result.get("success"):
+            raise Exception(result.get("error", "Unknown error from Apps Script"))
 
         # Save to database history
         timestamp = data.get("timestamp", "")
@@ -381,20 +368,6 @@ def send_email():
             "success": True,
             "message": f"Email sent successfully to {receiver_email}"
         })
-
-    except smtplib.SMTPAuthenticationError:
-        print("[ERROR] Authentication failed - check Gmail email & App Password")
-        return jsonify({
-            "success": False,
-            "error": "Gmail authentication failed. Check backend credentials."
-        }), 401
-
-    except smtplib.SMTPRecipientsRefused:
-        print(f"[ERROR] Recipient refused: {receiver_email}")
-        return jsonify({
-            "success": False,
-            "error": f"Invalid receiver email: {receiver_email}"
-        }), 400
 
     except Exception as e:
         print(f"[ERROR] {str(e)}")
