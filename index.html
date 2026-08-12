@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ResuMail - Send templated emails with resume attachments to HR and recruiters">
+    <title>ResuMail - Resume Email Sender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- Auth Container (Login / Signup Screen) -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card glass-card">
+            <div class="auth-brand">
+                <div class="brand-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+                <span class="brand-text">ResuMail Login</span>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginFormSection">
+                <p class="auth-subtitle">Log in to manage templates, upload resumes, and send emails from any device.</p>
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button class="btn-send btn-auth" id="loginBtn">
+                    <span>Log In</span>
+                    <div class="btn-shine"></div>
+                </button>
+                <p class="auth-footer-text">Don't have an account? <a href="#" id="showSignupLink">Sign Up</a></p>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupFormSection" style="display: none;">
+                <p class="auth-subtitle">Create a secure personal account to host your ResuMail setup.</p>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="Choose an email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password" required>
+                </div>
+                <button class="btn-send btn-auth" id="signupBtn">
+                    <span>Sign Up</span>
+                    <div class="btn-shine"></div>
+                </button>
+                <p class="auth-footer-text">Already have an account? <a href="#" id="showLoginLink">Log In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+                <span class="brand-text">ResuMail</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="compose" id="nav-compose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                    <span>Compose</span>
+                </button>
+                <button class="nav-item" data-tab="templates" id="nav-templates">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    <span>Templates</span>
+                </button>
+                <button class="nav-item" data-tab="history" id="nav-history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>History</span>
+                    <span class="nav-badge" id="historyBadge">0</span>
+                </button>
+                <button class="nav-item" id="logoutBtn" style="margin-top: auto; color: var(--danger);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="stats-mini">
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" id="totalSentStat">0</span>
+                        <span class="stat-mini-label">Sent</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" id="todaySentStat">0</span>
+                        <span class="stat-mini-label">Today</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <button class="menu-toggle" id="menuToggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <div class="header-title">
+                    <h1 id="pageTitle">Compose Email</h1>
+                    <p class="header-subtitle" id="pageSubtitle">Send your resume to recruiters with professional templates</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" id="clearHistoryBtn" title="Clear History" style="display:none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tab: Compose -->
+            <section class="tab-content active" id="tab-compose">
+                <div class="compose-grid">
+                    <!-- Left Column: Email Form -->
+                    <div class="compose-form-wrapper">
+                        <!-- Sender Email (persisted) -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <div class="card-icon sender-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                </div>
+                                <h2>Your Email</h2>
+                                <span class="saved-badge" id="savedBadge" style="display:none;">✓ Saved</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="senderEmail">Sender Email ID</label>
+                                <input type="email" id="senderEmail" placeholder="e.g. harsh@gmail.com" autocomplete="email">
+                                <span class="form-hint">Ye save ho jayegi — baar baar type nahi karna padega</span>
+                            </div>
+                        </div>
+
+                        <!-- Receiver Email (fresh every time) -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <div class="card-icon receiver-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                </div>
+                                <h2>Receiver Email</h2>
+                            </div>
+                            <div class="form-group">
+                                <label for="receiverEmail">HR / Recruiter Email ID</label>
+                                <input type="email" id="receiverEmail" placeholder="e.g. hr@company.com" autocomplete="off">
+                                <span class="form-hint">Har email ke baad ye automatically clear ho jayegi</span>
+                            </div>
+                        </div>
+
+                        <!-- Template Selection -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <div class="card-icon template-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                                </div>
+                                <h2>Select Template</h2>
+                            </div>
+                            <div class="template-chips" id="templateChips">
+                                <!-- Populated by JS -->
+                            </div>
+                            <!-- Resume attached to template -->
+                            <div class="template-resume-info" id="templateResumeInfo" style="display:none;">
+                                <div class="resume-attached-badge">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                    <span id="templateResumeName">Resume attached</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Send Button -->
+                        <button class="btn-send" id="sendBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                            <span>Send Email</span>
+                            <div class="btn-shine"></div>
+                        </button>
+                    </div>
+
+                    <!-- Right Column: Preview -->
+                    <div class="compose-preview-wrapper">
+                        <div class="glass-card preview-card">
+                            <div class="card-header">
+                                <div class="card-icon preview-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </div>
+                                <h2>Email Preview</h2>
+                            </div>
+                            <div class="email-preview" id="emailPreview">
+                                <div class="preview-meta">
+                                    <div class="preview-meta-row">
+                                        <span class="preview-label">From:</span>
+                                        <span class="preview-value" id="previewFrom">your-email@gmail.com</span>
+                                    </div>
+                                    <div class="preview-meta-row">
+                                        <span class="preview-label">To:</span>
+                                        <span class="preview-value" id="previewTo">receiver@company.com</span>
+                                    </div>
+                                    <div class="preview-meta-row">
+                                        <span class="preview-label">Subject:</span>
+                                        <span class="preview-value" id="previewSubject">Select a template...</span>
+                                    </div>
+                                    <div class="preview-meta-row" id="previewAttachRow" style="display:none;">
+                                        <span class="preview-label">Attach:</span>
+                                        <span class="preview-value preview-attach">📎 <span id="previewAttachName"></span></span>
+                                    </div>
+                                </div>
+                                <div class="preview-divider"></div>
+                                <div class="preview-body" id="previewBody">
+                                    Select a template to see the preview...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Templates -->
+            <section class="tab-content" id="tab-templates">
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Populated by JS -->
+                </div>
+                <button class="btn-add-template" id="addTemplateBtn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Create New Template</span>
+                </button>
+
+                <!-- Template Editor Modal -->
+                <div class="modal-overlay" id="templateModal" style="display:none;">
+                    <div class="modal glass-card">
+                        <div class="modal-header">
+                            <h2 id="modalTitle">Create New Template</h2>
+                            <button class="modal-close" id="modalClose">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="templateName">Template Name</label>
+                                <input type="text" id="templateName" placeholder="e.g. Software Developer Application">
+                            </div>
+                            <div class="form-group">
+                                <label for="templateSubject">Email Subject</label>
+                                <input type="text" id="templateSubject" placeholder="e.g. Application for Software Developer Position">
+                            </div>
+                            <div class="form-group">
+                                <label for="templateBody">Email Body</label>
+                                <textarea id="templateBody" rows="12" placeholder="Write your email template here..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Attach Resume (PDF)</label>
+                                <div class="file-upload-zone" id="modalFileUploadZone">
+                                    <input type="file" id="modalResumeFile" accept=".pdf,.doc,.docx" hidden>
+                                    <div class="upload-content" id="modalUploadContent">
+                                        <div class="upload-icon-sm">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                <polyline points="17 8 12 3 7 8"/>
+                                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                            </svg>
+                                        </div>
+                                        <p class="upload-text-sm">Click to attach resume • PDF, DOC, DOCX</p>
+                                    </div>
+                                    <div class="upload-preview" id="modalUploadPreview" style="display:none;">
+                                        <div class="file-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        </div>
+                                        <div class="file-info">
+                                            <span class="file-name" id="modalFileName"></span>
+                                            <span class="file-size" id="modalFileSize"></span>
+                                        </div>
+                                        <button class="file-remove" id="modalFileRemove" title="Remove file">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <span class="form-hint">Resume is template ke saath save hoga — har baar select nahi karna padega</span>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn-secondary" id="modalCancel">Cancel</button>
+                            <button class="btn-primary" id="modalSave">Save Template</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: History -->
+            <section class="tab-content" id="tab-history">
+                <div class="history-filters">
+                    <div class="search-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="historySearch" placeholder="Search by email or template...">
+                    </div>
+                </div>
+                <div class="history-list" id="historyList"></div>
+                <div class="empty-state" id="emptyHistory">
+                    <div class="empty-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <h3>No emails sent yet</h3>
+                    <p>Your sent email history will appear here</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
